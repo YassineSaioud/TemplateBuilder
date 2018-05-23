@@ -1,0 +1,8 @@
+﻿namespace TemplateBuilder.Core
+{
+    public interface IFileBuilder
+    {
+        void CreateFiles(string jsonConfigPath);
+        void CombineFiles(string jsonConfigPath);
+    }
+}

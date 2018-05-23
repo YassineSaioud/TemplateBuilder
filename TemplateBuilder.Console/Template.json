@@ -1,0 +1,94 @@
+{
+  "Name": "Migration",
+  "Version": "20180501",
+  "Root": "DatabaseScripts\\Migrations",
+  "Project": "D:\\EspaceClient\\RLD.Extranet.Model\\RLD.Extranet.Model.csproj",
+  //Complexe Tree Content Exemple
+  "Contents": [
+    {
+      "Parent": "Data",
+      "Files": [
+        {
+          "Name": "Test1.sql",
+          "Path": "C:\\TestFilesToMove"
+        },
+        {
+          "Name": "Test2.sql",
+          "Path": "C:\\TestFilesToMove"
+        }
+      ],
+      "Children": [
+        {
+          "Parent": "Data-Child1",
+          "Files": [
+            { "Name": "Data-Child1-File1.sql" },
+            { "Name": "Data-Child1-File2.sql" }
+          ],
+          "Children": [
+            {
+              "Parent": "Data-Child1-Child1",
+              "Files": [
+                { "Name": "Data-Child1-Child1-File1.sql" },
+                { "Name": "Data-Child1-Child1-File2.sql" }
+              ]
+            }
+          ]
+        },
+        {
+          "Parent": "Data-Child2",
+          "Files": [
+            { "Name": "Data-Child2-File1.sql" },
+            { "Name": "Data-Child2-File2.sql" }
+          ],
+          "Children": [
+            {
+              "Parent": "Data-Child2-Child1",
+              "Files": [
+                { "Name": "Data-Child2-Child1-File1.sql" },
+                { "Name": "Data-Child2-Child1-File2.sql" }
+              ]
+            }
+          ]
+        },
+        {
+          "Parent": "Data-Child3",
+          "Files": [
+            { "Name": "Data-Child3-File1.sql" },
+            { "Name": "Data-Child3-File2.sql" }
+          ],
+          "Children": [
+            {
+              "Parent": "Data-Child3-Child1",
+              "Files": [
+                { "Name": "Data-Child3-Child1-File1.sql" },
+                { "Name": "Data-Child3-Child1-File2.sql" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Parent": "Tables",
+      "Files": [
+        { "Name": "CreateTable.sql" }
+      ]
+    },
+    {
+      "Parent": "StoredProcedure",
+      "Files": [
+        { "Name": "Proc1.sql" }
+      ]
+    },
+    {
+      "Parent": "Views",
+      "Files": [
+        { "Name": "View1.sql" }
+      ]
+    }
+  ],
+  "VersioningInfo": {
+    "TableName": "[param].[DbVersions]",
+    "Fields": [ "[Version]", "[ModificationDate]", "[Comment]" ]
+  }
+}

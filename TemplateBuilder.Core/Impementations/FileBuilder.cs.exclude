@@ -1,0 +1,82 @@
+﻿using Microsoft.Build.Evaluation;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using TemplateBuilder.Core.Extentions;
+using TemplateBuilder.Core.Models;
+
+namespace TemplateBuilder.Core
+{
+    public class TemplateBuilder : IFileBuilder
+    {
+        event EventHandler<FeedbackEventArgs> _consoleMessage;
+
+        public TemplateBuilder(EventHandler<FeedbackEventArgs> consoleMessage)
+        {
+            _consoleMessage = consoleMessage;
+        }
+
+        public void CreateFiles(string jsonTemplateConfigPath)
+        {
+            var template = JsonConvert.DeserializeObject<Template>(File.ReadAllText(jsonTemplateConfigPath));
+            if (template.Contents != null)
+            {
+                var csproj = new Project(template.Project);
+                if (csproj != null)
+                {
+                    foreach (var content in template.Contents)
+                    {
+                        Directory.CreateDirectory(Path.Combine(csproj.DirectoryPath, template.RootPath, content.Parent));
+                        if (content.Files != null && content.Files.Any(file => !string.IsNullOrEmpty(file)))
+                            foreach (var file in content.Files)
+                            {
+                                File.Create(Path.Combine(csproj.DirectoryPath, template.RootPath, content.Parent, file));
+                                csproj.AddItem("Content", Path.Combine(template.RootPath, content.Parent, file));
+                            }
+                        else
+                            csproj.AddItem("Folder", Path.Combine(template.RootPath, content.Parent));
+                    }
+                    csproj.Save();
+                }
+            }
+        }
+
+        public void CombineFiles(string jsonTemplateConfigPath)
+        {
+            var inputFilePaths = new List<string>();
+            var template = JsonConvert.DeserializeObject<Template>(File.ReadAllText(jsonTemplateConfigPath));
+            if (template.Contents != null)
+            {
+                var csproj = new Project(template.Project);
+                if (csproj != null)
+                {
+                    // Get Files from folder
+                    foreach (var content in template.Contents)
+                        if (content.Files != null && content.Files.Any(file => !string.IsNullOrEmpty(file)))
+                            inputFilePaths.AddRange(Directory.GetFiles(Path.Combine(csproj.DirectoryPath, template.RootPath, content.Parent)));
+                   
+                    // Make Output file name
+                    var outputFilePath = Path.Combine(csproj.DirectoryPath, template.RootPath, $"{template.Name}-{template.Version}.sql");
+                    
+                    // Build outputfile contents
+                    using (var outputStream = File.Create(outputFilePath)) {
+                        foreach (var inputFilePath in inputFilePaths)
+                            using (var inputStream = File.OpenRead(inputFilePath))
+                            {
+                                outputStream.NewLine();
+                                inputStream.CopyTo(outputStream);
+                            }
+                        outputStream.WriteVersionScript(template);
+                    }
+                       
+                    // Add output file to current csproj
+                    csproj.AddItem("Content", outputFilePath);
+                    csproj.Save();
+                }
+            }
+        }
+
+    }
+}
