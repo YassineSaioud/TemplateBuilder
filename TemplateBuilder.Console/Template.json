@@ -1,8 +1,8 @@
 {
   "Name": "Migration",
   "Version": "20180501",
-  "Root": "DatabaseScripts\\Migrations",
-  "Project": "D:\\EspaceClient\\RLD.Extranet.Model\\RLD.Extranet.Model.csproj",
+  "Root": "YourRootFolder\\Migrations",
+  "Project": "D:\\YourProject.csproj",
   //Complexe Tree Content Exemple
   "Contents": [
     {
