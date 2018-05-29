@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Evaluation;
+using Microsoft.Build.Evaluation;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -23,7 +23,7 @@ namespace TemplateBuilder.Core.Impementations
                 var project = new Project(template.Project);
                 if (project != null)
                     foreach (var content in template.Contents)
-                        BuildTree(content.Parent, content, project, template.RootPath);
+                        BuildTree(content.Parent, content, project, template.RootFullPath);
             }
         }
 
@@ -33,22 +33,29 @@ namespace TemplateBuilder.Core.Impementations
         {
             parent = parent.Equals(content.Parent) ? content.Parent : parent;
 
-            var directoryToCreate = Path.Combine(project.DirectoryPath, rootPath, parent);
-            if (!Directory.Exists(directoryToCreate))
-                Directory.CreateDirectory(directoryToCreate);
+            var destinationDirectory = Path.Combine(project.DirectoryPath, rootPath, parent);
+            if (!Directory.Exists(destinationDirectory))
+                Directory.CreateDirectory(destinationDirectory);
 
-            if (!Directory.Exists(directoryToCreate) && content.Files == null && content.Children == null)
+            if (!Directory.Exists(destinationDirectory) && content.Files == null && content.Children == null)
                 project.AddItem("Folder", Path.Combine(rootPath, parent));
             else
             {
-                if (content.Files != null && content.Files.Any(file => !string.IsNullOrEmpty(file)))
+                if (content.Files != null && content.Files.Any(file => !string.IsNullOrEmpty(file?.Name)))
                     foreach (var file in content.Files)
                     {
-                        var fileToCreate = Path.Combine(project.DirectoryPath, rootPath, parent, file);
-                        if (!File.Exists(fileToCreate))
+                        var destinationFile = Path.Combine(project.DirectoryPath, rootPath, parent, file.Name);
+                        // Moving existing file
+                        if (File.Exists(file.FullPath))
                         {
-                            File.Create(fileToCreate);
-                            project.AddItem("Content", Path.Combine(rootPath, parent, file));
+                            new FileInfo(file.FullPath).MoveTo(destinationFile);
+                            project.AddItem("Content", Path.Combine(rootPath, parent, file.Name));
+                        }
+                        // Create new file
+                        else if (!File.Exists(destinationFile))
+                        {
+                            File.Create(destinationFile);
+                            project.AddItem("Content", Path.Combine(rootPath, parent, file.Name));
                         }
                     }
                 if (content.Children != null && content.Children.Any(child => child != null))
