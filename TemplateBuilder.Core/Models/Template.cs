@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 
 namespace TemplateBuilder.Core.Models
@@ -11,14 +11,21 @@ namespace TemplateBuilder.Core.Models
         public string Project { get; set; }
         public IEnumerable<Content> Contents { get; set; }
         public VersioningInfo VersioningInfo { get; set; }
-        public string RootPath => Path.Combine(Root, $"{Name}-{Version}");
+        public string RootFullPath => Path.Combine(Root, $"{Name}-{Version}");
     }
 
     public class Content
     {
         public string Parent { get; set; }
-        public IEnumerable<string> Files { get; set; }
+        public IEnumerable<ContentFile> Files { get; set; }
         public IEnumerable<Content> Children { get; set; }
+    }
+
+    public class ContentFile
+    {
+        public string Name { get; set; }
+        public string Path { get; set; }
+        public string FullPath => System.IO.Path.Combine(Path, Name);
     }
 
     public class VersioningInfo
