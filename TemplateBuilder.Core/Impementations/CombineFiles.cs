@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Evaluation;
+using Microsoft.Build.Evaluation;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -28,28 +28,30 @@ namespace TemplateBuilder.Core.Impementations
                 {
                     // Get files from tree
                     foreach (var content in template.Contents)
-                        GetFilesFromTree(content, content.Parent, project.DirectoryPath, template.RootPath, inputFilePaths);
+                        GetFilesFromTree(content, content.Parent, project.DirectoryPath, template.RootFullPath, inputFilePaths);
 
                     // Making output file
                     var outputFileName = $"{template.Name}-{template.Version}.sql";
-                    var outputFilePath = Path.Combine(project.DirectoryPath, template.RootPath, outputFileName);
-
-                    // Write in output file
-                    using (var outputStream = File.Create(outputFilePath))
+                    var outputFilePath = Path.Combine(project.DirectoryPath, template.RootFullPath, outputFileName);
+                    if (!File.Exists(outputFilePath))
                     {
-                        foreach (var inputFilePath in inputFilePaths)
-                            using (var inputStream = File.OpenRead(inputFilePath))
-                            {
-                                outputStream.NewLine();
-                                inputStream.CopyTo(outputStream);
-                            }
-                        // Write versionning info
-                        outputStream.WriteVersionScript(template);
+                        // Combine files contents into output file
+                        using (var outputStream = File.Create(outputFilePath))
+                        {
+                            foreach (var inputFilePath in inputFilePaths)
+                                using (var inputStream = File.OpenRead(inputFilePath))
+                                {
+                                    outputStream.NewLine();
+                                    inputStream.CopyTo(outputStream);
+                                    outputStream.NewLine();
+                                }
+                            // Write versionning info
+                            outputStream.WriteVersionScript(template);
+                        }
+                        // Add output file to current csproj
+                        project.AddItem("Content", Path.Combine(template.RootFullPath, outputFileName));
+                        project.Save();
                     }
-
-                    // Add output file to current csproj
-                    project.AddItem("Content", Path.Combine(template.RootPath, outputFileName));
-                    project.Save();
                 }
             }
         }
